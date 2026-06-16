@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Dashboard</title>
+  <style>
+    :root {
+      /* Replace this value with url("your-image.jpg") when your wallpaper is ready. */
+      --wallpaper-image: linear-gradient(135deg, #18222f 0%, #111923 48%, #0b1119 100%);
+      --text: #f7f8fa;
+      --muted: #aeb7c4;
+      --ink: #202731;
+      --surface: rgba(22, 29, 39, 0.78);
+      --surface-strong: rgba(31, 40, 52, 0.9);
+      --surface-soft: rgba(246, 248, 250, 0.94);
+      --border: rgba(255, 255, 255, 0.13);
+      --accent: #8fa8c4;
+      --accent-soft: #dce5ee;
+      --success: #75b798;
+      --danger: #c97d7d;
+      --line: #aeb8c4;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+    }
+
+    body[data-theme="light"] {
+      --wallpaper-image: linear-gradient(135deg, #eef3f8 0%, #dce7f0 48%, #f8fafc 100%);
+      --text: #17202b;
+      --muted: #5c6673;
+      --ink: #1f2933;
+      --surface: rgba(248, 250, 252, 0.8);
+      --surface-strong: rgba(255, 255, 255, 0.94);
+      --surface-soft: rgba(255, 255, 255, 0.96);
+      --border: rgba(35, 47, 62, 0.14);
+      --accent: #4f7aa3;
+      --accent-soft: #d9e8f7;
+      --line: #b5c3d1;
+      --shadow: 0 24px 70px rgba(57, 76, 96, 0.2);
+    }
+
+    body[data-theme="glass"] {
+      --wallpaper-image: linear-gradient(135deg, #16313a 0%, #212f46 45%, #342f4c 100%);
+      --surface: rgba(255, 255, 255, 0.16);
+      --surface-strong: rgba(255, 255, 255, 0.22);
+      --surface-soft: rgba(250, 252, 255, 0.9);
+      --accent: #b6d8e8;
+      --accent-soft: #e4f0f5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-width: 320px;
+      color: var(--text);
+      font-family: Inter, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+      background-image:
+        linear-gradient(180deg, rgba(7, 11, 17, 0.3), rgba(7, 11, 17, 0.66)),
+        var(--wallpaper-image);
+      background-position: center;
+      background-size: cover;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      display: none;
+    }
+
+    body::before {
+      left: -8vw;
+      background: linear-gradient(145deg, #183f48 0 25%, #122f38 26% 47%, #081d25 48%);
+      clip-path: polygon(0 50%, 8% 44%, 16% 49%, 25% 34%, 33% 45%, 42% 22%, 48% 38%, 57% 17%, 65% 42%, 74% 31%, 82% 50%, 91% 41%, 100% 58%, 100% 100%, 0 100%);
+    }
+
+    body::after {
+      right: -15vw;
+      background: linear-gradient(150deg, #31545b 0 22%, #16333b 23% 51%, #071c23 52%);
+      clip-path: polygon(0 57%, 9% 46%, 17% 51%, 27% 28%, 36% 43%, 47% 18%, 56% 39%, 67% 25%, 76% 48%, 87% 35%, 100% 54%, 100% 100%, 0 100%);
+    }
+
+    .grain {
+      position: fixed;
+      z-index: -1;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.12;
+      background-image:
+        radial-gradient(circle at 10% 15%, #fff 0 1px, transparent 1.4px),
+        radial-gradient(circle at 76% 32%, #fff 0 1px, transparent 1.3px),
+        radial-gradient(circle at 42% 70%, #fff 0 1px, transparent 1.4px);
+      background-size: 113px 97px, 151px 127px, 191px 163px;
+    }
+
+    .dashboard {
+      width: calc(100% - 52px);
+      min-height: calc(100vh - 50px);
+      margin: 25px auto;
+      padding: 40px 68px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 28px;
+      background: rgba(10, 15, 22, 0.16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(4px);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(480px, 0.78fr) minmax(600px, 1fr);
+      gap: clamp(48px, 9vw, 155px);
+      max-width: 1510px;
+      min-height: calc(100vh - 138px);
+      margin: auto;
+    }
+
+    .app-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 870px;
+      padding: 40px 35px 28px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--surface);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(24px);
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(76px, 1fr));
+      gap: 38px 32px;
+    }
+
+    .theme-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .theme-button {
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      background: var(--surface-strong);
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    }
+
+    .theme-button[aria-pressed="true"] {
+      outline: 2px solid var(--accent-soft);
+      outline-offset: 3px;
+    }
+
+    .theme-button[data-theme-choice="dark"] {
+      background: linear-gradient(135deg, #18222f, #0b1119);
+    }
+
+    .theme-button[data-theme-choice="light"] {
+      background: linear-gradient(135deg, #f8fafc, #d9e8f7);
+    }
+
+    .theme-button[data-theme-choice="glass"] {
+      background: linear-gradient(135deg, #16313a, #342f4c);
+    }
+
+    .app {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .app-icon {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      aspect-ratio: 1;
+      margin-bottom: 9px;
+      border-radius: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(145deg, #8ea6bf, #667b93);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22), 0 8px 20px rgba(0, 0, 0, 0.16);
+      transition: transform 180ms ease, filter 180ms ease;
+    }
+
+    .app-icon span {
+      color: currentColor;
+      font-size: clamp(24px, 4vw, 44px);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .app-link {
+      display: block;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app-link:focus-visible .app-icon,
+    .theme-button:focus-visible,
+    .note-input:focus-visible {
+      outline: 3px solid var(--accent-soft);
+      outline-offset: 4px;
+    }
+
+    .app-icon.whatsapp {
+      color: #fff;
+      background: linear-gradient(145deg, #28d467, #128c4a);
+    }
+
+    .app-icon.instagram {
+      color: #fff;
+      background: radial-gradient(circle at 32% 24%, #ffd776 0 14%, transparent 15%), linear-gradient(145deg, #833ab4, #fd1d1d 52%, #fcb045);
+    }
+
+    .app-icon.snapchat {
+      color: #111923;
+      background: linear-gradient(145deg, #fffc54, #f2d900);
+    }
+
+    .app-icon.pinterest {
+      color: #fff;
+      background: linear-gradient(145deg, #e60023, #9b0018);
+    }
+
+    .app-icon.gmail {
+      color: #fff;
+      background: linear-gradient(145deg, #ea4335, #fbbc05 38%, #34a853 70%, #4285f4);
+    }
+
+    .app-icon.youtube {
+      color: #fff;
+      background: linear-gradient(145deg, #ff1f1f, #b40000);
+    }
+
+    .app-icon.github {
+      color: #fff;
+      background: linear-gradient(145deg, #30363d, #010409);
+    }
+
+    .app-icon.chatgpt {
+      color: #fff;
+      background: linear-gradient(145deg, #19a37f, #0f7661);
+    }
+
+    .app-icon.linkedin {
+      color: #fff;
+      background: linear-gradient(145deg, #0a66c2, #004182);
+    }
+
+    .app-icon.drive {
+      color: #fff;
+      background: linear-gradient(145deg, #0f9d58, #4285f4 55%, #f4b400);
+    }
+
+    .app-icon.spotify {
+      color: #06130a;
+      background: linear-gradient(145deg, #1ed760, #18a84c);
+    }
+
+    .app-icon.reddit {
+      color: #fff;
+      background: linear-gradient(145deg, #ff5700, #c43c00);
+    }
+
+    .app:hover .app-icon {
+      transform: translateY(-4px);
+      filter: brightness(1.08);
+    }
+
+    .app-name {
+      display: block;
+      overflow: hidden;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .status-card {
+      margin-top: auto;
+      overflow: hidden;
+      color: var(--ink);
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: var(--surface-soft);
+    }
+
+    .card-tab {
+      display: inline-block;
+      padding: 11px 16px;
+      color: var(--ink);
+      font-size: 36px;
+      line-height: 1;
+      background: var(--accent-soft);
+    }
+
+    .status-card .card-tab {
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 700;
+      border-radius: 0 0 13px 0;
+    }
+
+    .status-list {
+      display: grid;
+      gap: 8px;
+      padding: 42px 16px 14px;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 1.45fr 48px 0.72fr;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .status-name,
+    .status-value,
+    .status-light {
+      min-height: 49px;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.78);
+    }
+
+    .status-name {
+      padding: 0 17px;
+      border-radius: 9px;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .status-light {
+      justify-content: center;
+      border: 1px solid #aeb8c4;
+      border-radius: 9px;
+      background: #e8edf2;
+    }
+
+    .status-light::after {
+      width: 18px;
+      height: 18px;
+      content: "";
+      border: 1px solid #4c6658;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .status-light.offline::after {
+      background: var(--danger);
+    }
+
+    .status-light.empty::after {
+      display: none;
+    }
+
+    .status-value {
+      padding: 0 17px;
+      border-radius: 9px;
+      font-size: 21px;
+    }
+
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .clock {
+      min-height: 194px;
+      padding-right: 50px;
+      color: rgba(247, 248, 250, 0.92);
+      font-size: clamp(84px, 8vw, 128px);
+      font-weight: 300;
+      line-height: 1;
+      text-align: right;
+      letter-spacing: 0;
+    }
+
+    .panel {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+    }
+
+    .notes-panel {
+      min-height: 416px;
+      padding: 80px 185px 34px 40px;
+      background: rgba(31, 41, 53, 0.82);
+    }
+
+    .notes-panel .card-tab,
+    .upcoming-panel .card-tab {
+      position: absolute;
+      top: 34px;
+      left: 40px;
+    }
+
+    .paper {
+      min-height: 300px;
+      padding: 35px 42px 24px;
+      border-radius: 13px;
+      background: var(--surface-soft);
+    }
+
+    .note-input {
+      width: 100%;
+      min-height: 240px;
+      resize: vertical;
+      color: var(--ink);
+      border: 0;
+      outline: 0;
+      background:
+        repeating-linear-gradient(to bottom, transparent 0 40px, var(--line) 41px 42px),
+        var(--surface-soft);
+      font: 500 20px/42px Inter, "Segoe UI", system-ui, sans-serif;
+    }
+
+    .paper-line {
+      height: 42px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .paper-line:first-child {
+      border-bottom-width: 3px;
+    }
+
+    .paper-line:nth-child(2) {
+      width: 88%;
+      margin-left: auto;
+    }
+
+    .side-pills {
+      position: absolute;
+      top: 104px;
+      right: 20px;
+      display: grid;
+      width: 132px;
+      gap: 13px;
+    }
+
+    .pill {
+      height: 30px;
+      border: 1px solid #aeb8c4;
+      border-radius: 12px;
+      background: rgba(245, 247, 249, 0.9);
+    }
+
+    .pill.large {
+      height: 57px;
+      display: grid;
+      place-items: center;
+      color: #647181;
+      font-size: 22px;
+    }
+
+    .upcoming-panel {
+      min-height: 340px;
+      margin-top: 26px;
+      padding: 78px 185px 30px 40px;
+      background: rgba(38, 50, 48, 0.84);
+    }
+
+    .event-paper {
+      min-height: 230px;
+      padding: 30px 45px;
+      color: var(--ink);
+      border-radius: 12px;
+      background: var(--surface-soft);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .event-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding-left: 24px;
+    }
+
+    .event {
+      padding-left: 5px;
+    }
+
+    .event-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 150px;
+      gap: 24px;
+      align-items: baseline;
+    }
+
+    .event-date {
+      font-weight: 400;
+    }
+
+    .event-when {
+      color: #647181;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .upcoming-panel .side-pills {
+      top: 79px;
+    }
+
+    .movable {
+      position: relative;
+      min-width: 300px;
+      min-height: 180px;
+      transition: box-shadow 180ms ease;
+      will-change: transform, width, height;
+    }
+
+    .movable.is-moving,
+    .movable.is-resizing {
+      z-index: 20;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+      user-select: none;
+    }
+
+    .drag-handle {
+      position: absolute;
+      z-index: 30;
+      top: 12px;
+      right: 14px;
+      height: 28px;
+      padding: 0 10px;
+      color: rgba(255, 255, 255, 0.72);
+      font: 700 9px/1 Inter, "Segoe UI", sans-serif;
+      letter-spacing: 1.4px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(8, 13, 20, 0.3);
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .status-card .drag-handle {
+      color: #66717e;
+      border-color: rgba(32, 39, 49, 0.12);
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .resize-handle {
+      position: absolute;
+      z-index: 31;
+      right: 7px;
+      bottom: 7px;
+      width: 22px;
+      height: 22px;
+      border-right: 2px solid rgba(255, 255, 255, 0.55);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.55);
+      border-radius: 0 0 7px;
+      cursor: nwse-resize;
+      touch-action: none;
+    }
+
+    .status-card .resize-handle {
+      border-color: rgba(32, 39, 49, 0.42);
+    }
+
+    .is-loading .status-light::after,
+    .loader {
+      display: block;
+      width: 20px;
+      height: 20px;
+      content: "";
+      border: 3px solid rgba(100, 113, 129, 0.26);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 850ms linear infinite;
+      background: transparent;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      z-index: 100;
+      top: 18px;
+      left: 50%;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      color: var(--ink);
+      border-radius: 999px;
+      background: var(--surface-soft);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+      transform: translateX(-50%);
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 1250px) {
+      .dashboard {
+        padding: 34px;
+      }
+
+      .layout {
+        grid-template-columns: minmax(420px, 0.85fr) minmax(520px, 1fr);
+        gap: 38px;
+      }
+
+      .app-grid {
+        gap: 34px 22px;
+      }
+    }
+
+    @media (max-width: 980px) {
+      body {
+        overflow: auto;
+      }
+
+      .dashboard {
+        width: calc(100% - 24px);
+        margin: 12px;
+        padding: 25px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .app-panel {
+        min-height: 760px;
+      }
+
+      .workspace {
+        gap: 24px;
+      }
+
+      .clock {
+        min-height: auto;
+        padding: 0;
+        text-align: center;
+      }
+
+      .upcoming-panel {
+        margin-top: 0;
+      }
+
+      .movable {
+        width: auto !important;
+        height: auto !important;
+        transform: none !important;
+      }
+
+      .drag-handle,
+      .resize-handle {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .dashboard {
+        padding: 14px;
+        border-width: 2px;
+      }
+
+      .app-panel {
+        min-height: 0;
+        padding: 24px 18px;
+      }
+
+      .app-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px 18px;
+      }
+
+      .status-card {
+        margin-top: 45px;
+      }
+
+      .status-row {
+        grid-template-columns: 1fr 43px;
+      }
+
+      .status-value {
+        grid-column: 1 / -1;
+        min-height: 38px;
+      }
+
+      .notes-panel,
+      .upcoming-panel {
+        padding: 78px 18px 145px;
+      }
+
+      .side-pills,
+      .upcoming-panel .side-pills {
+        top: auto;
+        right: 18px;
+        bottom: 18px;
+        left: 18px;
+        grid-template-columns: repeat(3, 1fr);
+        width: auto;
+      }
+
+      .pill.large {
+        height: 30px;
+        font-size: 16px;
+      }
+
+      .event-paper {
+        padding: 26px 20px;
+        font-size: 16px;
+      }
+
+      .event {
+        margin-bottom: 8px;
+      }
+
+      .event-main {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      .event-date,
+      .event-when {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+  <div class="loading-overlay" role="status" aria-live="polite">
+    <span class="loader" aria-hidden="true"></span>
+    <span>Opening app...</span>
+  </div>
+
+  <main class="dashboard">
+    <div class="layout">
+      <section class="app-panel movable" data-card="apps" aria-label="Application shortcuts">
+        <div class="theme-strip" aria-label="Theme">
+          <button class="theme-button" type="button" data-theme-choice="dark" aria-label="Dark theme"></button>
+          <button class="theme-button" type="button" data-theme-choice="light" aria-label="Light theme"></button>
+          <button class="theme-button" type="button" data-theme-choice="glass" aria-label="Glass theme"></button>
+        </div>
+        <div class="app-grid">
+          <div class="app"><a class="app-link" href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer" data-app-name="WhatsApp"><span class="app-icon whatsapp"><span>W</span></span><span class="app-name">WhatsApp</span></a></div>
+          <div class="app"><a class="app-link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" data-app-name="Instagram"><span class="app-icon instagram"><span>IG</span></span><span class="app-name">Instagram</span></a></div>
+          <div class="app"><a class="app-link" href="https://www.snapchat.com/" target="_blank" rel="noopener noreferrer" data-app-name="Snapchat"><span class="app-icon snapchat"><span>S</span></span><span class="app-name">Snapchat</span></a></div>
+          <div class="app"><a class="app-link" href="https://www.pinterest.com/" target="_blank" rel="noopener noreferrer" data-app-name="Pinterest"><span class="app-icon pinterest"><span>P</span></span><span class="app-name">Pinterest</span></a></div>
+
+          <div class="app"><a class="app-link" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" data-app-name="Gmail"><span class="app-icon gmail"><span>M</span></span><span class="app-name">Gmail</span></a></div>
+          <div class="app"><a class="app-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" data-app-name="YouTube"><span class="app-icon youtube"><span>YT</span></span><span class="app-name">YouTube</span></a></div>
+          <div class="app"><a class="app-link" href="https://github.com/" target="_blank" rel="noopener noreferrer" data-app-name="GitHub"><span class="app-icon github"><span>GH</span></span><span class="app-name">GitHub</span></a></div>
+          <div class="app"><a class="app-link" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" data-app-name="ChatGPT"><span class="app-icon chatgpt"><span>AI</span></span><span class="app-name">ChatGPT</span></a></div>
+
+          <div class="app"><a class="app-link" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" data-app-name="LinkedIn"><span class="app-icon linkedin"><span>in</span></span><span class="app-name">LinkedIn</span></a></div>
+          <div class="app"><a class="app-link" href="https://drive.google.com/" target="_blank" rel="noopener noreferrer" data-app-name="Drive"><span class="app-icon drive"><span>D</span></span><span class="app-name">Drive</span></a></div>
+          <div class="app"><a class="app-link" href="https://open.spotify.com/" target="_blank" rel="noopener noreferrer" data-app-name="Spotify"><span class="app-icon spotify"><span>SP</span></span><span class="app-name">Spotify</span></a></div>
+          <div class="app"><a class="app-link" href="https://www.reddit.com/" target="_blank" rel="noopener noreferrer" data-app-name="Reddit"><span class="app-icon reddit"><span>R</span></span><span class="app-name">Reddit</span></a></div>
+        </div>
+
+        <section class="status-card movable" data-card="status">
+          <div class="card-tab">Status table</div>
+          <div class="status-list">
+            <div class="status-row">
+              <div class="status-name">Mongo DB</div>
+              <div class="status-light"></div>
+              <div class="status-value">Online</div>
+            </div>
+            <div class="status-row">
+              <div class="status-name">Stocks API</div>
+              <div class="status-light offline"></div>
+              <div class="status-value">Offline</div>
+            </div>
+            <div class="status-row is-loading">
+              <div class="status-name">News API</div>
+              <div class="status-light empty"></div>
+              <div class="status-value">Connecting</div>
+            </div>
+            <div class="status-row is-loading">
+              <div class="status-name">Network</div>
+              <div class="status-light empty"></div>
+              <div class="status-value">Retrying</div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="workspace">
+        <div class="clock" aria-label="Current time">12:00</div>
+
+        <section class="panel notes-panel movable" data-card="notes">
+          <div class="card-tab">Notes</div>
+          <div class="paper">
+            <textarea class="note-input" aria-label="Notes" placeholder="Write your notes here..."></textarea>
+          </div>
+          <div class="side-pills">
+            <div class="pill large">one</div>
+            <div class="pill"></div>
+            <div class="pill"></div>
+            <div class="pill"></div>
+            <div class="pill"></div>
+            <div class="pill"></div>
+          </div>
+        </section>
+
+        <section class="panel upcoming-panel movable" data-card="upcoming">
+          <div class="card-tab">Upcoming</div>
+          <div class="event-paper">
+            <ul class="event-list" aria-label="Upcoming events"></ul>
+          </div>
+          <div class="side-pills">
+            <div class="pill large">one</div>
+            <div class="pill"></div>
+            <div class="pill"></div>
+            <div class="pill"></div>
+            <div class="pill"></div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+  <script>
+    (() => {
+      const STORAGE_KEY = "minimal-dashboard-layout-v1";
+      const cards = [...document.querySelectorAll(".movable")];
+      let savedLayout = {};
+
+      try {
+        savedLayout = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        savedLayout = {};
+      }
+
+      const saveLayout = () => {
+        const layout = {};
+        cards.forEach((card) => {
+          layout[card.dataset.card] = {
+            x: Number(card.dataset.x || 0),
+            y: Number(card.dataset.y || 0),
+            width: card.style.width,
+            height: card.style.height
+          };
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+      };
+
+      cards.forEach((card) => {
+        const state = savedLayout[card.dataset.card];
+        if (state && window.innerWidth > 980) {
+          card.dataset.x = state.x || 0;
+          card.dataset.y = state.y || 0;
+          card.style.transform = `translate(${state.x || 0}px, ${state.y || 0}px)`;
+          if (state.width) card.style.width = state.width;
+          if (state.height) card.style.height = state.height;
+        }
+
+        const dragHandle = document.createElement("button");
+        dragHandle.className = "drag-handle";
+        dragHandle.type = "button";
+        dragHandle.textContent = "MOVE";
+        dragHandle.setAttribute("aria-label", "Move card");
+
+        const resizeHandle = document.createElement("div");
+        resizeHandle.className = "resize-handle";
+        resizeHandle.setAttribute("aria-label", "Resize card");
+
+        card.append(dragHandle, resizeHandle);
+
+        dragHandle.addEventListener("pointerdown", (event) => {
+          if (window.innerWidth <= 980) return;
+          event.preventDefault();
+          const startX = event.clientX;
+          const startY = event.clientY;
+          const originX = Number(card.dataset.x || 0);
+          const originY = Number(card.dataset.y || 0);
+          card.classList.add("is-moving");
+          dragHandle.setPointerCapture(event.pointerId);
+
+          const move = (moveEvent) => {
+            const x = originX + moveEvent.clientX - startX;
+            const y = originY + moveEvent.clientY - startY;
+            card.dataset.x = x;
+            card.dataset.y = y;
+            card.style.transform = `translate(${x}px, ${y}px)`;
+          };
+
+          const stop = () => {
+            card.classList.remove("is-moving");
+            dragHandle.removeEventListener("pointermove", move);
+            dragHandle.removeEventListener("pointerup", stop);
+            dragHandle.removeEventListener("pointercancel", stop);
+            saveLayout();
+          };
+
+          dragHandle.addEventListener("pointermove", move);
+          dragHandle.addEventListener("pointerup", stop);
+          dragHandle.addEventListener("pointercancel", stop);
+        });
+
+        resizeHandle.addEventListener("pointerdown", (event) => {
+          if (window.innerWidth <= 980) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const startX = event.clientX;
+          const startY = event.clientY;
+          const startWidth = card.offsetWidth;
+          const startHeight = card.offsetHeight;
+          card.classList.add("is-resizing");
+          resizeHandle.setPointerCapture(event.pointerId);
+
+          const resize = (moveEvent) => {
+            card.style.width = `${Math.max(300, startWidth + moveEvent.clientX - startX)}px`;
+            card.style.height = `${Math.max(180, startHeight + moveEvent.clientY - startY)}px`;
+          };
+
+          const stop = () => {
+            card.classList.remove("is-resizing");
+            resizeHandle.removeEventListener("pointermove", resize);
+            resizeHandle.removeEventListener("pointerup", stop);
+            resizeHandle.removeEventListener("pointercancel", stop);
+            saveLayout();
+          };
+
+          resizeHandle.addEventListener("pointermove", resize);
+          resizeHandle.addEventListener("pointerup", stop);
+          resizeHandle.addEventListener("pointercancel", stop);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

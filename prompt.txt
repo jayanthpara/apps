@@ -1,0 +1,479 @@
+# WebDesk OS - Detailed Master Prompt
+
+Build a modern browser-based personal operating system called **WebDesk OS** using only **HTML, CSS, and Vanilla JavaScript** inside a single `index.html` file.
+
+This is NOT a bookmark page and NOT a collection of hyperlinks.
+
+The goal is to create a fully customizable personal productivity dashboard that feels like a lightweight operating system running inside a browser.
+
+---
+
+## Core Vision
+
+The application should look and behave like a combination of:
+
+* Windows 11
+* macOS
+* Notion
+* Arc Browser Dashboard
+* Android Home Screen
+* Productivity Workspace
+
+The user should be able to use the dashboard every day as their primary personal workspace.
+
+The design should feel premium, modern, smooth, and highly customizable.
+
+---
+
+# Layout Structure
+
+The screen should have 3 major sections.
+
+## Left Sidebar (App Dock)
+
+A collapsible vertical dock containing:
+
+* WhatsApp
+* Gmail
+* YouTube
+* Reddit
+* LinkedIn
+* Pinterest
+* Facebook
+* Instagram
+* X (Twitter)
+* GitHub
+* Spotify
+* Netflix
+* Google Drive
+* Google Docs
+* Duolingo
+* ChatGPT
+
+Important:
+
+Do NOT embed these websites.
+
+When clicked:
+
+* Open the website in a new tab.
+* Maintain a recent apps list.
+* Track usage statistics locally.
+
+Features:
+
+* Drag-and-drop reorder
+* Pin / unpin apps
+* Search apps
+* Categories
+* Favorite apps
+* Custom app addition
+* Custom icon upload
+* Hide apps
+* Dock resize
+* Dock collapse mode
+* Tooltip labels
+
+---
+
+# Center Workspace
+
+The center is the main working area.
+
+This should function like a desktop.
+
+Users can create and arrange widgets freely.
+
+The workspace should support:
+
+* Drag widgets
+* Resize widgets
+* Move widgets
+* Snap widgets
+* Grid layout
+* Free layout mode
+* Lock layout
+* Save layout
+* Reset layout
+
+---
+
+# Widget System
+
+Widgets are the most important part of the application.
+
+Every widget should be:
+
+* Draggable
+* Resizable
+* Hideable
+* Collapsible
+* Color customizable
+* Opacity adjustable
+* Font customizable
+
+Widgets must save their state automatically.
+
+---
+
+# Widget 1: Notes
+
+Rich Notes System.
+
+Features:
+
+* Multiple notes
+* Create note
+* Delete note
+* Rename note
+* Rich text formatting
+* Bold
+* Italics
+* Underline
+* Checklists
+* Code blocks
+* Bullet lists
+* Headings
+* Search notes
+* Auto-save
+
+Storage:
+
+localStorage or IndexedDB
+
+---
+
+# Widget 2: Todo Manager
+
+Features:
+
+* Create tasks
+* Delete tasks
+* Edit tasks
+* Mark complete
+* Due dates
+* Categories
+* Priority levels
+* Progress bars
+* Completion statistics
+
+Views:
+
+* Today
+* Upcoming
+* Completed
+* All Tasks
+
+---
+
+# Widget 3: Sticky Notes
+
+Features:
+
+* Unlimited sticky notes
+* Different colors
+* Drag anywhere
+* Resize
+* Quick edit
+
+---
+
+# Widget 4: Calendar
+
+Features:
+
+* Month view
+* Week view
+* Event creation
+* Event editing
+* Event deletion
+* Highlight current day
+* Upcoming events list
+
+---
+
+# Widget 5: Clock
+
+Features:
+
+* Digital clock
+* Analog clock
+* Multiple timezones
+* Stopwatch
+* Countdown timer
+
+---
+
+# Widget 6: Pomodoro Timer
+
+Features:
+
+* Start
+* Pause
+* Reset
+
+Modes:
+
+* Work
+* Short break
+* Long break
+
+Statistics:
+
+* Today's sessions
+* Weekly sessions
+
+---
+
+# Widget 7: Quick Links
+
+Features:
+
+* User-defined links
+* Categories
+* Icons
+* Drag sorting
+
+---
+
+# Widget 8: Habit Tracker
+
+Features:
+
+* Daily habits
+* Streak tracking
+* Completion percentage
+* Monthly overview
+
+---
+
+# Widget 9: Daily Planner
+
+Sections:
+
+* Morning
+* Afternoon
+* Evening
+
+Users can plan their day.
+
+---
+
+# Widget 10: Goal Tracker
+
+Features:
+
+* Long-term goals
+* Short-term goals
+* Progress indicators
+* Deadlines
+
+---
+
+# Widget 11: Reading List
+
+Features:
+
+* Save articles
+* Mark read
+* Reading progress
+
+---
+
+# Widget 12: Quotes Widget
+
+Features:
+
+* Random quote
+* Daily quote
+* Refresh button
+
+---
+
+# Widget 13: Weather Widget
+
+Use a free weather API.
+
+Features:
+
+* Current weather
+* Temperature
+* Humidity
+* Forecast
+
+---
+
+# Widget 14: System Stats Widget
+
+Show:
+
+* Current time
+* Active widgets
+* Notes count
+* Tasks count
+* Completed tasks
+
+---
+
+# Customization System
+
+Include a global Edit Mode.
+
+When Edit Mode is enabled:
+
+Users can:
+
+* Drag widgets
+* Resize widgets
+* Change colors
+* Change fonts
+* Change opacity
+* Change borders
+* Change shadows
+
+Changes should persist automatically.
+
+---
+
+# Theme Engine
+
+Provide multiple themes.
+
+Themes:
+
+* Light
+* Dark
+* Glassmorphism
+* Cyberpunk
+* Minimal
+* macOS Style
+* Windows 11 Style
+
+Users can create custom themes.
+
+---
+
+# Personalization
+
+Allow users to:
+
+* Upload profile photo
+* Set username
+* Set workspace name
+* Set custom wallpaper
+* Use image backgrounds
+* Use gradient backgrounds
+
+---
+
+# Dashboard Features
+
+Include:
+
+## Search Bar
+
+Search across:
+
+* Notes
+* Todos
+* Habits
+* Goals
+* Links
+
+---
+
+## Command Palette
+
+Open using:
+
+Ctrl + K
+
+Allows quick actions:
+
+* Create note
+* Add task
+* Open widget
+* Change theme
+* Search content
+
+---
+
+## Notification Center
+
+Shows:
+
+* Due tasks
+* Upcoming events
+* Habit reminders
+
+---
+
+## Activity Feed
+
+Track:
+
+* Tasks completed
+* Notes created
+* Goals updated
+
+---
+
+# Data Storage
+
+All data should be stored locally.
+
+Use:
+
+* localStorage for simple data
+* IndexedDB for large data
+
+Persist:
+
+* Notes
+* Todos
+* Widget positions
+* Widget sizes
+* Themes
+* Wallpapers
+* Settings
+* Goals
+* Habits
+
+---
+
+# Performance Requirements
+
+* No React
+* No Vue
+* No Angular
+* No Frameworks
+* Pure HTML
+* Pure CSS
+* Pure JavaScript
+
+Everything must exist inside:
+
+index.html
+
+No external dependencies except optional icon libraries and weather API.
+
+---
+
+# Visual Requirements
+
+The UI should feel like a real operating system.
+
+Use:
+
+* Smooth animations
+* Blur effects
+* Floating cards
+* Rounded corners
+* Modern typography
+* Responsive design
+* Elegant shadows
+* Professional spacing
+
+The final result should look like a premium productivity operating system rather than a webpage.
+
+Generate production-quality code with clean architecture, modular JavaScript classes, extensive comments, and scalable widget management.
