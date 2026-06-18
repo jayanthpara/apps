@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal Personal Dashboard Hub</title>
+    <title>Chaos</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
       /* ─── RESET & DESIGN SYSTEM ─────────────────────────────── */
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -123,6 +126,10 @@
         background: rgba(17, 22, 29, 0.08); transition: var(--transition);
       }
       .app-icon svg { width: 20px; height: 20px; fill: var(--ink); }
+      .app-icon i {
+  font-size: 20px;
+  color: var(--ink);
+}
       .app-link:hover .app-icon { transform: scale(1.08) translateY(-2px); background: rgba(17, 22, 29, 0.15); }
       .app-name { font-size: 11px; font-weight: 700; color: var(--ink); text-align: center; width: 100%; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -363,23 +370,46 @@
     { name:'Gmail', url:'https://mail.google.com', icon:`<svg viewBox="0 0 24 24"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>` },
     { name:'Drive', url:'https://drive.google.com', icon:`<svg viewBox="0 0 24 24"><path d="M4.433 22.396L.025 14.962 8.323 0h7.354zM15.384 9.506L11.49 2.82 19.573 17.2H3.736l2.003-3.471zm4.15 12.89l4.408-7.434H7.616l-4.408 7.434z"/></svg>` }
   ];
+const WORK_APPS = [
 
-  const WORK_APPS = [
-    { name:'ChatGPT', url:'https://chatgpt.com', icon:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.74 11.66a3.52 3.52 0 0 0-.25-1.42 3.55 3.55 0 0 0-1.12-1.39 3.65 3.65 0 0 0-.16-1.51 3.56 3.56 0 0 0-.74-1.35 3.53 3.53 0 0 0-1.21-.92 3.6 3.6 0 0 0-1.48-.05 3.54 3.54 0 0 0-1.28-.78 3.57 3.57 0 0 0-1.49.07 3.55 3.55 0 0 0-2.45-1.53 3.57 3.57 0 0 0-2.73.71 3.53 3.53 0 0 0-1.21.91 3.56 3.56 0 0 0-1.53.1 3.55 3.55 0 0 0-2.02 2.14 3.52 3.52 0 0 0-.25 1.42A3.55 3.55 0 0 0 2.8 13.8a3.65 3.65 0 0 0 .16 1.51 3.56 3.56 0 0 0 .74 1.35 3.53 3.53 0 0 0 1.21.92 3.6 3.6 0 0 0 1.48.05 3.54 3.54 0 0 0 1.28.78 3.57 3.57 0 0 0 1.49-.07 3.55 3.55 0 0 0 2.45 1.53 3.57 3.57 0 0 0 2.73-.71 3.53 3.53 0 0 0 1.21-.91 3.56 3.56 0 0 0 1.53-.1 3.55 3.55 0 0 0 2.02-2.14 3.52 3.52 0 0 0 .25-1.42 3.55 3.55 0 0 0 1.12-2.14c.09-.72.01-1.45-.24-2.13zm-8.2 6.94a1.86 1.86 0 0 1-1.39-.62 1.94 1.94 0 0 1-.46-1.43l.03-.84 4.34-2.5 1.28.74v2.75a1.88 1.88 0 0 1-1.12 1.66c-.84.34-1.78.24-2.68-.26zm-5-1.85a1.9 1.9 0 0 1-.93-1.07 1.88 1.88 0 0 1 .15-1.5l.72-.42 4.34 2.5-1.28.74h-2.1c-.3.01-.6-.08-.9-.25zm-2.92-5a1.86 1.86 0 0 1 .46-1.44 1.9 1.9 0 0 1 1.39-.61h2.1l-.03.84-4.34 2.51-1.28-.74a1.3 1.3 0 0 1-.3-.56zm1.12-5a1.9 1.9 0 0 1 .93-1.07c.31-.15.65-.21.99-.18l2.1.05v.84L7.43 8.33l-1.28-.74c-.37-.5-.46-1.15-.31-1.76zm6.33-1.42a1.86 1.86 0 0 1 1.39.61 1.94 1.94 0 0 1 .46 1.43l-.03.84-4.34 2.51-1.28-.74V4.5a1.88 1.88 0 0 1 1.12-1.66c.84-.34 1.78-.24 2.68.26zm5 1.85c.37.28.64.67.76 1.12.12.45.08.93-.11 1.35l-.72.42-4.34-2.5 1.28-.74h2.1c.36.03.7.16 1.03.35zm.14 5.75c0 .32-.08.64-.24.92l-4.34 2.5V11l4.34-2.5a1.9 1.9 0 0 1 .24.92c0 .2-.03.4-.07.59c-.04.2-.12.39-.23.57h.3z"/></svg>` },
-   { name:'ChatGPT', url:'https://chatgpt.com', icon:`<svg viewBox="
-    
-    0 0 24 24"><path d="M19 10.285V14.4h-3v-4.115h3zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>` },
-    { name:'Claude', url:'https://claude.ai', icon:`<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.5h-2v-2h2zm0-3.5h-2V7h2z"/></svg>` },
-    { name:'DeepSeek', url:'https://www.deepseek.com', icon:`<svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg>` },
-    { name:'Grok', url:'https://x.com/i/grok', icon:`<svg viewBox="0 0 24 24"><path d="M2 2h20v20H2z"/></svg>` },
-    { name:'Gemini', url:'https://gemini.google.com', icon:`<svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7z"/></svg>` },
-    { name:'Custom 1', url:'#', isCustom: true },
-    { name:'Custom 2', url:'#', isCustom: true },
-    { name:'Custom 3', url:'#', isCustom: true },
-  ];
+  {
+    name:'ChatGPT',
+    url:'https://chatgpt.com',
+    iconHtml:'<i class="fa-solid fa-robot"></i>'
+  },
+
+  {
+    name:'Claude',
+    url:'https://claude.ai',
+    iconHtml:'<i class="fa-solid fa-brain"></i>'
+  },
+
+  {
+    name:'DeepSeek',
+    url:'https://www.deepseek.com',
+    iconHtml:'<i class="fa-solid fa-compass"></i>'
+  },
+
+  {
+    name:'Grok',
+    url:'https://x.com/i/grok',
+    iconHtml:'<i class="fa-solid fa-bolt"></i>'
+  },
+
+  {
+    name:'Gemini',
+    url:'https://gemini.google.com',
+    iconHtml:'<i class="fa-solid fa-sparkles"></i>'
+  },
+
+  { name:'Custom 1', url:'#', isCustom:true },
+  { name:'Custom 2', url:'#', isCustom:true },
+  { name:'Custom 3', url:'#', isCustom:true }
+];
 
   function populateAppGrid(targetId, appList) {
     const container = document.getElementById(targetId);
+    
     container.innerHTML = appList.map(a => {
       if (a.isCustom) {
         return `
@@ -390,7 +420,8 @@
       }
       return `
         <a class="app-link" href="${a.url}" target="_blank" rel="noopener">
-          <div class="app-icon">${a.icon}</div>
+        
+          <div class="app-icon">${a.iconHtml || a.icon}</div>
           <span class="app-name">${a.name}</span>
         </a>`;
     }).join('');
