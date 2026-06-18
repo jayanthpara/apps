@@ -365,6 +365,7 @@
   ];
 
   const WORK_APPS = [
+    { name:'ChatGPT', url:'https://chatgpt.com', icon:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.74 11.66a3.52 3.52 0 0 0-.25-1.42 3.55 3.55 0 0 0-1.12-1.39 3.65 3.65 0 0 0-.16-1.51 3.56 3.56 0 0 0-.74-1.35 3.53 3.53 0 0 0-1.21-.92 3.6 3.6 0 0 0-1.48-.05 3.54 3.54 0 0 0-1.28-.78 3.57 3.57 0 0 0-1.49.07 3.55 3.55 0 0 0-2.45-1.53 3.57 3.57 0 0 0-2.73.71 3.53 3.53 0 0 0-1.21.91 3.56 3.56 0 0 0-1.53.1 3.55 3.55 0 0 0-2.02 2.14 3.52 3.52 0 0 0-.25 1.42A3.55 3.55 0 0 0 2.8 13.8a3.65 3.65 0 0 0 .16 1.51 3.56 3.56 0 0 0 .74 1.35 3.53 3.53 0 0 0 1.21.92 3.6 3.6 0 0 0 1.48.05 3.54 3.54 0 0 0 1.28.78 3.57 3.57 0 0 0 1.49-.07 3.55 3.55 0 0 0 2.45 1.53 3.57 3.57 0 0 0 2.73-.71 3.53 3.53 0 0 0 1.21-.91 3.56 3.56 0 0 0 1.53-.1 3.55 3.55 0 0 0 2.02-2.14 3.52 3.52 0 0 0 .25-1.42 3.55 3.55 0 0 0 1.12-2.14c.09-.72.01-1.45-.24-2.13zm-8.2 6.94a1.86 1.86 0 0 1-1.39-.62 1.94 1.94 0 0 1-.46-1.43l.03-.84 4.34-2.5 1.28.74v2.75a1.88 1.88 0 0 1-1.12 1.66c-.84.34-1.78.24-2.68-.26zm-5-1.85a1.9 1.9 0 0 1-.93-1.07 1.88 1.88 0 0 1 .15-1.5l.72-.42 4.34 2.5-1.28.74h-2.1c-.3.01-.6-.08-.9-.25zm-2.92-5a1.86 1.86 0 0 1 .46-1.44 1.9 1.9 0 0 1 1.39-.61h2.1l-.03.84-4.34 2.51-1.28-.74a1.3 1.3 0 0 1-.3-.56zm1.12-5a1.9 1.9 0 0 1 .93-1.07c.31-.15.65-.21.99-.18l2.1.05v.84L7.43 8.33l-1.28-.74c-.37-.5-.46-1.15-.31-1.76zm6.33-1.42a1.86 1.86 0 0 1 1.39.61 1.94 1.94 0 0 1 .46 1.43l-.03.84-4.34 2.51-1.28-.74V4.5a1.88 1.88 0 0 1 1.12-1.66c.84-.34 1.78-.24 2.68.26zm5 1.85c.37.28.64.67.76 1.12.12.45.08.93-.11 1.35l-.72.42-4.34-2.5 1.28-.74h2.1c.36.03.7.16 1.03.35zm.14 5.75c0 .32-.08.64-.24.92l-4.34 2.5V11l4.34-2.5a1.9 1.9 0 0 1 .24.92c0 .2-.03.4-.07.59c-.04.2-.12.39-.23.57h.3z"/></svg>` },
    { name:'ChatGPT', url:'https://chatgpt.com', icon:`<svg viewBox="
     
     0 0 24 24"><path d="M19 10.285V14.4h-3v-4.115h3zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>` },
@@ -532,16 +533,32 @@
   function escHtml(s) { return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>'); }
 
   /* Wall Paper Cache Ignition */
-  (function setupWallpaper(){
-    const wp = localStorage.getItem('dash-v3-wp'); if(wp) document.body.style.backgroundImage = `url(${wp})`;
-    document.getElementById('wp-input').addEventListener('change', function(){
-      const file = this.files[0]; if(!file) return;
-      const reader = new FileReader(); reader.onload = e => {
-        document.body.style.backgroundImage = `url(${e.target.result})`;
-        localStorage.setItem('dash-v3-wp', e.target.result);
-      }; reader.readAsDataURL(file);
-    });
-  })();
+(function setupWallpaper(){
+
+  // Default wallpaper
+  document.body.style.backgroundImage = "url('backdrop.jpg')";
+
+  // Override with saved wallpaper if one exists
+  const savedWallpaper = localStorage.getItem('dash-v3-wp');
+  if (savedWallpaper) {
+    document.body.style.backgroundImage = `url(${savedWallpaper})`;
+  }
+
+  document.getElementById('wp-input').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      document.body.style.backgroundImage = `url(${e.target.result})`;
+      localStorage.setItem('dash-v3-wp', e.target.result);
+    };
+
+    reader.readAsDataURL(file);
+  });
+
+})();
 
   /* System Activation Deployment */
   populateAppGrid('standard-apps-grid', GENERAL_APPS);
