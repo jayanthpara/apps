@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal Personal Dashboard Hub</title>
+  <style>
+    /* ─── RESET & DESIGN SYSTEM ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-dark: #090c10;
+      --text-light: #f7f8fa;
+      --ink: #11161d;
+      --border-alpha: rgba(255, 255, 255, 0.08);
+      
+      /* Bento Block Palettes Inspired by Premium UI Design */
+      --card-lavender: #e2c1eb;
+      --card-plum: #b1a2e6;
+      --card-lime: #ccd42a;
+      --card-blue: #00239c;
+      --card-glass: rgba(255, 255, 255, 0.06);
+
+      --radius: 24px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html, body { min-height: 100vh; width: 100%; }
+
+    body {
+      font-family: -apple-system, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      color: var(--text-light);
+      background-color: var(--bg-dark);
+      background-position: center;
+      background-size: cover;
+      background-attachment: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 200px 200px 250px    ;
+      overflow-x: hidden;
+    }
+
+    .grain {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.04;
+      background-image: radial-gradient(circle at 50% 50%, #fff 0 1px, transparent 1.5px);
+      background-size: 120px 120px;
+    }
+
+    /* ─── WALLPAPER SYSTEM CONTROL ─────────────────────────── */
+    #wp-btn {
+      position: fixed; bottom: 20px; left: 20px; z-index: 90;
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: rgba(15, 20, 30, 0.7);
+      border: 1px solid var(--border-alpha); border-radius: 999px;
+      color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600;
+      cursor: pointer; backdrop-filter: blur(8px); transition: var(--transition);
+    }
+    #wp-btn:hover { background: #fff; color: #000; }
+    #wp-input { display: none; }
+
+    /* ─── CENTRIC HUB CONTAINER ────────────────────────────── */
+    .dashboard-container {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .dashboard-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 32px; padding: 0 4px; flex-wrap: wrap; gap: 16px;
+    }
+
+    /* ─── RETRO PAGES FLIP CLOCK ───────────────────────────── */
+    .flip-clock { display: flex; gap: 6px; align-items: center; }
+    .flip-card {
+      background: #161b22; color: #fff; font-size: 38px; font-weight: 700;
+      padding: 6px 12px; border-radius: 8px; min-width: 56px; text-align: center;
+      position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      border-bottom: 2px solid rgba(0,0,0,0.4);
+    }
+    .flip-card::before {
+      content: ''; position: absolute; left: 0; top: 50%; right: 0;
+      height: 1px; background: rgba(0,0,0,0.3); z-index: 2;
+    }
+    .clock-sep { font-size: 28px; font-weight: 700; opacity: 0.5; animation: blink 1s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.8; } }
+    .header-date { font-size: 12px; opacity: 0.4; font-weight: 600; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ─── DYNAMIC BENTO ARCHITECTURE ───────────────────────── */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+    }
+
+    .col-left { grid-column: span 5; display: flex; flex-direction: column; gap: 24px; }
+    .col-right { grid-column: span 6; display: flex; flex-direction: column; gap: 24px; }
+
+    .card {
+      border-radius: var(--radius); padding: 28px;
+      display: flex; flex-direction: column; position: relative; overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3); transition: var(--transition);
+    }
+    .card:hover { transform: translateY(-2px); }
+
+    .color-block-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink); opacity: 0.5; margin-bottom: 20px; }
+    .color-block-text { color: var(--ink); font-size: 18px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; margin-top: auto; padding-top: 16px; }
+
+    /* Layout Style Assigns */
+    .block-apps { background-color: var(--card-lavender); min-height: 310px; }
+    .block-work { background-color: var(--card-lime); min-height: 250px; }
+    .block-status { background-color: var(--card-plum); min-height: 180px; }
+    .block-workspace { background-color: var(--card-blue); min-height: 390px; gap: 24px; }
+    .block-upcoming { background-color: #8bf6b0eb; min-height: 280px; gap: 16px; }
+
+    /* ─── CORE APPLICATIONS SYSTEMS ───────────────────────── */
+    .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 12px; }
+    .app-link { display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; min-width: 0; }
+    .app-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(17, 22, 29, 0.08); transition: var(--transition);
+    }
+    .app-icon svg { width: 20px; height: 20px; fill: var(--ink); }
+    .app-link:hover .app-icon { transform: scale(1.08) translateY(-2px); background: rgba(17, 22, 29, 0.15); }
+    .app-name { font-size: 11px; font-weight: 700; color: var(--ink); text-align: center; width: 100%; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Custom Input Link Flags */
+    .app-icon.custom { border: 1px dashed rgba(17, 22, 29, 0.3); background: transparent; font-size: 10px; font-weight: 800; color: var(--ink); }
+
+    /* ─── TRACKING INFRASTRUCTURE PANEL ───────────────────── */
+    .status-list { display: flex; flex-direction: column; gap: 8px; }
+    .status-row { 
+      display: flex; justify-content: space-between; align-items: center; 
+      background: rgba(255,255,255,0.4); padding: 10px 14px; border-radius: 12px;
+    }
+    .status-name { font-size: 12px; font-weight: 700; color: var(--ink); }
+    .status-badge { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--ink); }
+    .status-badge.online { color: #047857; }
+    .status-badge.offline { color: #b91c1c; }
+    .status-shimmer {
+      width: 100%; height: 36px; border-radius: 12px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.3) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite;
+    }
+
+    /* ─── MODULAR WORKSPACE DRIVEN LABS ───────────────────── */
+    .glass-panel {
+      background: var(--card-glass); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .glass-panel.notes-surface { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
+    .glass-panel.todo-surface { background: rgba(204,212,42,0.14); border-color: rgba(204,212,42,0.28); }
+    .block-upcoming .glass-panel {
+      background: rgba(17,22,29,0.08);
+      border-color: rgba(17,22,29,0.12);
+      color: var(--ink);
+    }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; }
+    .panel-header h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); }
+    .block-upcoming .panel-header h3 { color: rgba(17,22,29,0.58); }
+    
+    .btn-action {
+      background: rgba(255,255,255,0.1); border: none; padding: 4px 10px; 
+      border-radius: 6px; color: #fff; font-size: 11px; font-weight: 600; cursor: pointer; transition: var(--transition);
+    }
+    .btn-action:hover { background: rgba(255,255,255,0.2); }
+    .block-upcoming .btn-action { background: rgba(17,22,29,0.12); color: var(--ink); }
+    .block-upcoming .btn-action:hover { background: rgba(17,22,29,0.2); }
+
+    .notes-tabs { display: flex; gap: 4px; overflow-x: auto; }
+    .note-tab {
+      background: transparent; border: none; color: rgba(255,255,255,0.4);
+      padding: 4px 8px; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 4px;
+    }
+    .note-tab.active { color: #fff; background: rgba(255,255,255,0.1); }
+    .note-textarea {
+      width: 100%; min-height: 75px; background: transparent; border: none;
+      resize: none; outline: none; color: #fff; font-family: inherit; font-size: 13px; line-height: 1.5;
+    }
+
+    .todo-row { display: flex; gap: 6px; }
+    .todo-input {
+      flex: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 6px 12px; color: #fff; font-size: 12px; outline: none;
+    }
+    .block-upcoming .todo-input {
+      background: rgba(255,255,255,0.48);
+      border-color: rgba(17,22,29,0.12);
+      color: var(--ink);
+    }
+    .todo-list { max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .todo-item { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 8px; font-size: 12px; }
+    .todo-cb { appearance: none; width: 14px; height: 14px; border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; cursor: pointer; }
+    .todo-cb:checked { background: var(--card-lime); border-color: var(--card-lime); }
+
+    .event-list { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 110px; overflow-y: auto; }
+    .block-upcoming .event-list { max-height: 180px; }
+    .event-item { display: flex; justify-content: space-between; font-size: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .block-upcoming .event-item { border-bottom-color: rgba(17,22,29,0.1); }
+    .ev-info { display: flex; flex-direction: column; }
+    .ev-title { font-weight: 700; }
+    .ev-when { font-size: 10px; opacity: 0.5; text-transform: uppercase; font-weight: 700; margin-top: 2px; }
+    .ev-date { font-weight: 600; opacity: 0.8; }
+
+    /* ─── LAUNCH EXTENSION DRAW SIDEBAR (FUTURE WORKPLACE) ── */
+    .btn-more {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border-alpha);
+      padding: 10px 18px; border-radius: 12px; color: #fff; font-size: 12px;
+      font-weight: 700; cursor: pointer; backdrop-filter: blur(4px); transition: var(--transition);
+    }
+    .btn-more:hover { background: #fff; color: #000; }
+
+    .sliding-panel {
+      position: fixed; top: 0; right: -400px; width: 100%; max-width: 380px; height: 100%;
+      background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(24px);
+      border-left: 1px solid var(--border-alpha); z-index: 1000;
+      padding: 40px 24px; display: flex; flex-direction: column; gap: 24px;
+      transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sliding-panel.open { right: 0; box-shadow: -20px 0 60px rgba(0,0,0,0.6); }
+    .panel-close { align-self: flex-end; background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; opacity: 0.5; }
+    .panel-close:hover { opacity: 1; }
+    .future-placeholder {
+      flex: 1; border: 2px dashed rgba(255,255,255,0.1); border-radius: 16px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 20px;
+    }
+
+    /* ─── LIQUID MEDIA QUERIES RESPONSIVENESS ─────────────── */
+    @media (max-width: 1040px) {
+      .bento-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+      .col-left, .col-right { grid-column: span 1; }
+    }
+    @media (max-width: 680px) {
+      body { padding: 24px 14px; }
+      .bento-grid { grid-template-columns: 1fr; gap: 16px; }
+      .col-left, .col-right { grid-column: span 1; }
+      .app-grid { grid-template-columns: repeat(3, 1fr); }
+      #clock-time { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+<div class="grain"></div>
+
+<button id="wp-btn" onclick="document.getElementById('wp-input').click()">Interface Skin</button>
+<input type="file" id="wp-input" accept="image/*">
+
+<div class="sliding-panel" id="more-extension-panel">
+  <button class="panel-close" onclick="toggleMorePanel()">×</button>
+  <h2 style="font-weight: 300; letter-spacing: -0.5px;">Analytics & Radar</h2>
+  <div class="future-placeholder">
+    <p style="font-weight:700; margin-bottom:6px; color:rgba(255,255,255,0.6);">Module Offline</p>
+    <p style="font-size:11px;">Stock Portfolio Tracking Engine & World Radar Live Feed Integration points waiting for link specifications.</p>
+  </div>
+</div>
+
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <div>
+      <div class="flip-clock">
+        <div class="flip-card" id="flip-h">00</div>
+        <div class="clock-sep">:</div>
+        <div class="flip-card" id="flip-m">00</div>
+      </div>
+      <div class="header-date" id="clock-date">Initialising Node...</div>
+    </div>
+    <button class="btn-more" onclick="toggleMorePanel()">More Dashboard Components →</button>
+  </header>
+
+  <main class="bento-grid">
+    
+    <div class="col-left">
+      
+      <section class="card block-apps">
+        <!-- <div class="color-block-title">Daily Operations</div> -->
+        <div class="app-grid" id="standard-apps-grid">
+          </div>
+        <div class="color-block-text">Standard Communications</div>
+      </section>
+
+      
+
+      
+      <section class="card block-work">
+        <!-- <div class="color-block-title">Artificial Intelligence Core</div> -->
+        <div class="app-grid" id="work-apps-grid">
+          </div>
+        <div class="color-block-text">Production Environments</div>
+      </section>
+<section class="card block-status">
+        <!-- <div class="color-block-title">Local Monitoring Matrix</div> -->
+        <div class="status-list" id="status-list">
+          <div class="status-shimmer"></div>
+        </div>
+        <div class="color-block-text">Core Infrastructure Status</div>
+      </section>
+    </div>
+
+    <div class="col-right">
+      <div class="card block-upcoming">
+        <!-- <div class="color-block-title">Agenda Metrics</div> -->
+        <section class="glass-panel">
+          <div class="panel-header">
+            <h3>Upcoming</h3>
+          </div>
+          <ul class="event-list" id="events-list"></ul>
+          <div class="todo-row">
+            <input class="todo-input" id="ev-title" placeholder="Target entry description..." style="flex: 2;">
+            <input class="todo-input" id="ev-date" type="date" style="flex: 1.5;">
+            <button class="btn-action" onclick="addEvent()">+</button>
+          </div>
+        </section>
+        <div class="color-block-text">Upcoming Schedule</div>
+      </div>
+
+      <div class="card block-workspace">
+        <section class="glass-panel notes-surface">
+          <div class="panel-header">
+            <h3>Terminal Notes</h3>
+            <button class="btn-action" onclick="clearActiveNote()">Wipe Line</button>
+          </div>
+          <div class="notes-tabs" id="notes-tabs"></div>
+          <div id="notes-body"></div>
+        </section>
+
+        <section class="glass-panel todo-surface">
+          <div class="panel-header">
+            <h3>Action Log</h3>
+          </div>
+          <div class="todo-row">
+            <input class="todo-input" id="todo-input" placeholder="Append active execution track..." onkeydown="if(event.key==='Enter')addTodo()">
+            <button class="btn-action" onclick="addTodo()">+</button>
+          </div>
+          <div class="todo-list" id="todo-list"></div>
+        </section>
+        <div class="color-block-text" style="color:#fff;">Notes & Execution Tracker</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   APPLICATIONS MATRIX DATA ENGINE
+══════════════════════════════════════════════════════════ */
+const GENERAL_APPS = [
+  { name:'WhatsApp', url:'https://web.whatsapp.com', icon:`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>` },
+  { name:'Instagram', url:'https://www.instagram.com', icon:`<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>` },
+  { name:'Snapchat', url:'https://web.snapchat.com', icon:`<svg viewBox="0 0 24 24"><path d="M12.065.026C9.09.026 6.583.812 4.697 2.34 2.717 3.945 1.71 6.237 1.71 9.154c0 .54.042 1.075.121 1.598-.164.103-.344.157-.527.157-.356 0-.677-.175-.88-.484l-.038-.067-.076.022c-.03.008-.054.016-.054.016s-.054.006-.088.006c-.346 0-.603-.216-.613-.512l-.002-.047.031-.038c.125-.148.39-.243.58-.307l.107-.037c.12-.044.23-.091.317-.148.332-.218.497-.538.453-.876C.867 7.956.47 7.53.47 7.026c0-.354.155-.672.425-.895.215-.178.49-.273.797-.273.21 0 .406.047.589.141l.12.063.003-.136C2.454 2.525 6.622 0 12.065 0s9.611 2.525 9.661 5.926l.003.136.12-.063c.183-.094.378-.141.59-.141.307 0 .581.095.796.273.27.223.425.541.425.895 0 .504-.397.93-.571 1.009-.044.338.121.658.453.876.087.057.197.104.317.148l.107.037c.19.064.455.159.58.307l.031.038-.002.047c-.01.296-.267.512-.613.512-.034 0-.088-.006-.088-.006s-.024-.008-.054-.016l-.076-.022-.038.067c-.203.309-.524.484-.88.484-.183 0-.363-.054-.527-.157.079-.523.121-1.058.121-1.598 0-2.917-1.007-5.209-2.987-6.814C17.547.812 15.04.026 12.065.026zm-.065 3.208c-2.85 0-4.876.844-4.876 3.845 0 .47.058.931.143 1.375-.396.219-.893.392-1.553.392-.42 0-.835-.084-1.214-.248-.022-.01-.053-.014-.087-.014-.168 0-.363.115-.363.29 0 .114.079.218.233.31.526.318.93.484 1.255.57.17.045.297.169.297.313 0 .037-.008.077-.025.118-.234.56-.56.999-.963 1.302a5.066 5.066 0 01-1.293.686c-.268.095-.514.18-.713.299-.39.23-.572.526-.572.935 0 .546.379.95.947 1.044.15.025.273.043.388.057.14.017.256.031.39.063.365.089.65.295.837.604.12.2.275.29.467.29.133 0 .295-.045.52-.142.45-.193 1.008-.41 1.7-.41.29 0 .605.03.931.09.458.082.875.27 1.335.482.537.247 1.088.492 1.802.492.708 0 1.26-.246 1.797-.492.46-.212.877-.4 1.335-.481.326-.06.641-.091.931-.091.692 0 1.25.217 1.7.41.225.097.387.142.52.142.192 0 .347-.09.467-.29.187-.309.472-.515.837-.604.134-.032.25-.046.39-.063.115-.014.238-.032.388-.057.568-.094.947-.498.947-1.044 0-.409-.182-.705-.572-.935-.199-.119-.445-.204-.713-.299a5.066 5.066 0 01-1.293-.686c-.403-.303-.729-.742-.963-1.302a.32.32 0 01-.025-.118c0-.144.127-.268.297-.313.325-.086.729-.252 1.255-.57.154-.092.233-.196.233-.31 0-.175-.195-.29-.363-.29-.034 0-.065.004-.087.014-.379.164-.794.248-1.214.248-.66 0-1.157-.173-1.553-.392.085-.444.143-.905.143-1.375 0-3.001-2.026-3.845-4.876-3.845z"/></svg>` },
+  { name:'Duolingo', url:'https://www.duolingo.com', icon:`<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>` },
+  { name:'LinkedIn', url:'https://www.linkedin.com', icon:`<svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>` },
+  { name:'YouTube', url:'https://www.youtube.com', icon:`<svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>` },
+  { name:'X / Twitter', url:'https://www.x.com', icon:`<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.261 5.638 5.903-5.638zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>` },
+  { name:'Google', url:'https://www.google.com', icon:`<svg viewBox="0 0 24 24"><path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.136 4.113A5.88 5.88 0 018 12.63c0-3.257 2.627-5.899 5.991-5.899 1.543 0 2.951.577 4.032 1.623l3.122-3.12C19.24 3.42 16.36 2 13.06 2 7.508 2 3 6.508 3 12.06c0 5.551 4.508 10.058 10.06 10.058 7.373 0 10.134-5.196 9.5-11.833h-10.32z"/></svg>` },
+  { name:'Reddit', url:'https://www.reddit.com', icon:`<svg viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>` },
+  { name:'Pinterest', url:'https://www.pinterest.com', icon:`<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>` },
+  { name:'Gmail', url:'https://mail.google.com', icon:`<svg viewBox="0 0 24 24"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>` },
+  { name:'Drive', url:'https://drive.google.com', icon:`<svg viewBox="0 0 24 24"><path d="M4.433 22.396L.025 14.962 8.323 0h7.354zM15.384 9.506L11.49 2.82 19.573 17.2H3.736l2.003-3.471zm4.15 12.89l4.408-7.434H7.616l-4.408 7.434z"/></svg>` }
+];
+
+const WORK_APPS = [
+  { name:'ChatGPT', url:'https://chatgpt.com', icon:`<svg viewBox="0 0 24 24"><path d="M19 10.285V14.4h-3v-4.115h3zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>` },
+  { name:'Claude', url:'https://claude.ai', icon:`<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.5h-2v-2h2zm0-3.5h-2V7h2z"/></svg>` },
+  { name:'DeepSeek', url:'https://www.deepseek.com', icon:`<svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg>` },
+  { name:'Grok', url:'https://x.com/i/grok', icon:`<svg viewBox="0 0 24 24"><path d="M2 2h20v20H2z"/></svg>` },
+  { name:'Gemini', url:'https://gemini.google.com', icon:`<svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7z"/></svg>` },
+  { name:'Custom 1', url:'#', isCustom: true },
+  { name:'Custom 2', url:'#', isCustom: true },
+  { name:'Custom 3', url:'#', isCustom: true },
+];
+
+function populateAppGrid(targetId, appList) {
+  const container = document.getElementById(targetId);
+  container.innerHTML = appList.map(a => {
+    if (a.isCustom) {
+      return `
+        <a class="app-link" href="${a.url}" onclick="alert('Custom link redirection target config offline.'); return false;">
+          <div class="app-icon custom">+</div>
+          <span class="app-name">${a.name}</span>
+        </a>`;
+    }
+    return `
+      <a class="app-link" href="${a.url}" target="_blank" rel="noopener">
+        <div class="app-icon">${a.icon}</div>
+        <span class="app-name">${a.name}</span>
+      </a>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   FLIP-STYLE CLOCK SYSTEM 
+══════════════════════════════════════════════════════════ */
+function updateClock() {
+  const now = new Date();
+  const hrs = String(now.getHours()).padStart(2, '0');
+  const mins = String(now.getMinutes()).padStart(2, '0');
+  
+  // Flip updates only if visual values change
+  if(document.getElementById('flip-h').textContent !== hrs) document.getElementById('flip-h').textContent = hrs;
+  if(document.getElementById('flip-m').textContent !== mins) document.getElementById('flip-m').textContent = mins;
+
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('clock-date').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+}
+updateClock(); setInterval(updateClock, 1000);
+
+/* ══════════════════════════════════════════════════════════
+   SIDEBAR MORE NAVIGATION PANEL TOGLE
+══════════════════════════════════════════════════════════ */
+function toggleMorePanel() {
+  document.getElementById('more-extension-panel').classList.toggle('open');
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOCK INFRASTRUCTURE SYSTEM HEALTH MONITOR
+══════════════════════════════════════════════════════════ */
+const CHECKS = [
+  { name: 'Sync to server', run: () => new Promise(r => setTimeout(()=>r('incomplete dev'), 600)) },
+  { name: 'Database Hub Cluster', run: () => new Promise(r => setTimeout(()=>r('pending dev'), 600)) },
+  { name: 'Production Cloud Nodes', run: () => new Promise(r => setTimeout(()=>r('offline'), 900)) }
+];
+async function verifyStatusEngine() {
+  const container = document.getElementById('status-list');
+  const outcomes = await Promise.allSettled(CHECKS.map(c => c.run()));
+  container.innerHTML = '';
+  CHECKS.forEach((c, idx) => {
+    const status = outcomes[idx].status === 'fulfilled' ? outcomes[idx].value : 'offline';
+    container.innerHTML += `
+      <div class="status-row">
+        <span class="status-name">${c.name}</span>
+        <span class="status-badge ${status}">${status}</span>
+      </div>`;
+  });
+}
+setTimeout(verifyStatusEngine, 400);
+
+/* ══════════════════════════════════════════════════════════
+   WORKSPACE PERSISTENCE SYSTEMS (Local / Drop-in API Ready)
+══════════════════════════════════════════════════════════ */
+let notesData = { tabs: [], active: null };
+let todos = [];
+let events = [];
+
+/* Notes Workspace */
+function loadNotes() {
+  try { notesData = JSON.parse(localStorage.getItem('dash-mini-v3-notes')) || { tabs:[], active:null }; } catch { notesData = { tabs:[], active:null }; }
+  if(!notesData.tabs.length) {
+    notesData.tabs.push({ id: 'n1', title: 'Operational Log', content: '' });
+    notesData.active = 'n1';
+  }
+}
+function renderNotes() {
+  const tabs = document.getElementById('notes-tabs');
+  const body = document.getElementById('notes-body');
+  tabs.innerHTML = notesData.tabs.map(t => `<button class="note-tab ${t.id===notesData.active?'active':''}" onclick="switchNote('${t.id}')">${t.title}</button>`).join('') + `<button class="note-tab" onclick="addNoteTab()">+</button>`;
+  body.innerHTML = notesData.tabs.map(t => `<textarea class="note-textarea" style="display:${t.id===notesData.active?'block':'none'}" oninput="syncNotes('${t.id}', this.value)" placeholder="Transcribe runtime documentation...">${t.content||''}</textarea>`).join('');
+}
+function switchNote(id) { saveNotes(); notesData.active = id; renderNotes(); }
+function addNoteTab() {
+  const id = 'n' + Date.now();
+  notesData.tabs.push({ id, title: `Space ${notesData.tabs.length+1}`, content: '' });
+  notesData.active = id; saveNotes(); renderNotes();
+}
+function syncNotes(id, val) {
+  const target = notesData.tabs.find(t => t.id === id); if(target) target.content = val;
+  localStorage.setItem('dash-mini-v3-notes', JSON.stringify(notesData));
+}
+function saveNotes() { localStorage.setItem('dash-mini-v3-notes', JSON.stringify(notesData)); }
+function clearActiveNote() { if(confirm('Purge target documentation buffer?')) { document.querySelector('.note-textarea[style*="display: block"]').value = ''; saveNotes(); } }
+
+/* Task Engine Actions */
+function loadTodos() { try { todos = JSON.parse(localStorage.getItem('dash-mini-v3-todos')) || []; } catch { todos = []; } }
+function renderTodos() {
+  const el = document.getElementById('todo-list');
+  if(!todos.length) { el.innerHTML = `<div class="empty-state">No Tasks Logged</div>`; return; }
+  el.innerHTML = todos.map(t => `
+    <div class="todo-item ${t.done?'done':''}">
+      <input type="checkbox" class="todo-cb" ${t.done?'checked':''} onchange="toggleTodo('${t.id}')">
+      <span>${escHtml(t.text)}</span>
+    </div>`).join('');
+}
+function addTodo() {
+  const el = document.getElementById('todo-input'); const v = el.value.trim(); if(!v) return;
+  todos.push({ id: Date.now().toString(), text: v, done: false });
+  el.value = ''; localStorage.setItem('dash-mini-v3-todos', JSON.stringify(todos)); renderTodos();
+}
+function toggleTodo(id) {
+  const t = todos.find(item => item.id === id); if(t) t.done = !t.done;
+  localStorage.setItem('dash-mini-v3-todos', JSON.stringify(todos)); renderTodos();
+}
+
+/* Agenda Logic Engine */
+function loadEvents() {
+  try { events = JSON.parse(localStorage.getItem('dash-mini-v3-events')) || []; } catch { events = []; }
+  if(!events.length) {
+    const yr = new Date().getFullYear();
+    events = [{ id: '1', title: 'Operational Milestone Alpha', date: `${yr}-09-12` }];
+  }
+}
+function relativeDistance(dStr) {
+  const delta = Math.round((new Date(dStr + 'T00:00:00').setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
+  if(delta === 0) return "today"; if(delta === 1) return "tomorrow";
+  return delta > 1 ? `in ${delta} days` : "passed";
+}
+function renderEvents() {
+  const el = document.getElementById('events-list');
+  if(!events.length) { el.innerHTML = `<div class="empty-state">No Upcomng Engagements</div>`; return; }
+  el.innerHTML = events.sort((a,b)=> new Date(a.date) - new Date(b.date)).map(ev => `
+    <li class="event-item">
+      <div class="ev-info"><span class="ev-title">${escHtml(ev.title)}</span><span class="ev-when">${relativeDistance(ev.date)}</span></div>
+      <span class="ev-date">${new Date(ev.date + 'T00:00:00').toLocaleDateString([], {day:'numeric', month:'short'})}</span>
+    </li>`).join('');
+}
+function addEvent() {
+  const t = document.getElementById('ev-title'); const d = document.getElementById('ev-date'); if(!t.value.trim() || !d.value) return;
+  events.push({ id: Date.now().toString(), title: t.value.trim(), date: d.value });
+  t.value = ''; localStorage.setItem('dash-mini-v3-events', JSON.stringify(events)); renderEvents();
+}
+
+/* Base Protection Utils */
+function escHtml(s) { return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>'); }
+
+/* Wall Paper Cache Ignition */
+(function setupWallpaper(){
+  const wp = localStorage.getItem('dash-v3-wp'); if(wp) document.body.style.backgroundImage = `url(${wp})`;
+  document.getElementById('wp-input').addEventListener('change', function(){
+    const file = this.files[0]; if(!file) return;
+    const reader = new FileReader(); reader.onload = e => {
+      document.body.style.backgroundImage = `url(${e.target.result})`;
+      localStorage.setItem('dash-v3-wp', e.target.result);
+    }; reader.readAsDataURL(file);
+  });
+})();
+
+/* System Activation Deployment */
+populateAppGrid('standard-apps-grid', GENERAL_APPS);
+populateAppGrid('work-apps-grid', WORK_APPS);
+loadNotes(); renderNotes();
+loadTodos(); renderTodos();
+loadEvents(); renderEvents();
+document.getElementById('ev-date').valueAsDate = new Date();
+</script>
+</body>
+</html>
